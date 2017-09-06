@@ -1,6 +1,10 @@
 #!/usr/bin/nodejs
 'use strict';
 
+const _drop = require('lodash/drop');
+const _take = require('lodash/take');
+const _concat = require('lodash/concat');
+
 require('dotenv').config({path: __dirname + '/.env'});
 
 const atac = require('NodeAtacAPI');
@@ -9,6 +13,7 @@ const atacKey = process.env.ATAC_API_KEY;
 const parallelQueries = parseInt(process.env.PARALLEL_QUERIES);
 
 const lines = [
+  /*
     {
         el: 'Autobus ATAC',
         lines: [
@@ -383,6 +388,7 @@ const lines = [
             'C19',
         ],
     },
+  */
     {
         label: 'Tram',
         lines: [
@@ -425,7 +431,7 @@ let getRoutes = (line) => {
 
 /**
  * Obtains a list the vehicles for a route
- * @param {string} route 
+ * @param {string} route
  */
 let getVehicles = (route) => {
     return new Promise(resolve => {
@@ -445,60 +451,37 @@ let getVehicles = (route) => {
     })
 };
 
-/**
- * Fills the routes array
- * @param {*} group 
- * @param {integer} start 
- * @param {integer} length 
- */
-let routesFill = (group, start, length) => {
-    return new Promise(resolve => {
-        let end = (start + length <= group.lines.length) ? (start + length) : group.lines.length;
-        Promise.all(group.lines.slice(start, end).map(getRoutes)).then(data => {
-            let routes = data.reduce((out, el) => out.concat(el), []);
-            group.routes = (group.routes ? group.routes.concat(routes) : routes);
+const fillAsync = async (list, getFunction, parallel) => {
+  let _list = list.slice()
+  let _data = []
 
-            if (end !== group.lines.length) {
-                routesFill(group, (start + length), length);
-            }
-            else {
-                resolve(group);
-            }
-        }).catch(error => console.log(error));
-    });
-};
+  while (_list.length > 0) {
+    const _subset = _take(_list, parallel)
 
-/**
- * Fills the buses array
- * @param {*} group 
- * @param {integer} start 
- * @param {integer} length 
- */
-let busesFill = (group, start, length) => {
-    return new Promise(resolve => {
-        let end = (start + length <= group.routes.length) ? (start + length) : group.routes.length;
+    const data = await Promise.all(_subset.map(getFunction))
 
-        Promise.all(group.routes.slice(start, end).map(getVehicles)).then(data => {
-            let vehicles = data.reduce((out, el) => out.concat(el), []);
-            group.vehicles = (group.vehicles ? group.vehicles.concat(vehicles) : vehicles);
+    _data = _concat(_data, data.reduce((out, el) => out.concat(el), []))
+    _list = _drop(_list, parallel)
+  }
 
-            if (end !== group.routes.length) {
-                busesFill(group, (start + length), length);
-            }
-            else {
-                resolve(group);
-            }
-        }).catch(error => console.log(error));
-    })
-};
+  return _data
+}
 
 /**
  * Main program
  */
-lines.forEach(group => {
-    routesFill(group, 0, parallelQueries).then(data => {
-        busesFill(data, 0, Math.ceil(parallelQueries / 4)).then(data => {
-            console.log(data);
-        }).catch(error => console.log(error));
-    }).catch(error => console.log(error));
-});
+const main = async () => {
+  for (let group of lines) {
+    const _groupLines = group.lines
+    const _groupRoutes = await fillAsync(_groupLines, getRoutes, parallelQueries)
+    const _groupBuses = await fillAsync(_groupRoutes, getVehicles, parallelQueries)
+
+    group.buses = _groupBuses
+  }
+
+  debugger
+  console.log(lines)
+}
+
+
+main()
