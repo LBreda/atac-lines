@@ -1,0 +1,26 @@
+{
+  "name": "atac-lines",
+  "version": "0.1.0-alpha.1",
+  "description": "Realtime info about ATAC lines",
+  "main": "start.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "atac",
+    "bus"
+  ],
+  "author": "Lorenzo Breda <lorenzo@lbreda.com>",
+  "license": "ISC",
+  "dependencies": {
+    "NodeAtacAPI": "github:LBreda/NodeAtacAPI",
+    "dotenv": "^4.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/LBreda/atac-lines/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:LBreda/atac-lines.git"
+  }
+}
