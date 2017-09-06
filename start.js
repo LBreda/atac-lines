@@ -475,7 +475,9 @@ const main = async () => {
         group.buses = _groupBuses
     }
 
-  console.log(lines)
+    lines.forEach(group => {
+        console.log(group.label + ': ' + group.buses.length + ' buses')
+    })
 }
 
 
