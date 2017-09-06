@@ -6,7 +6,7 @@ require('dotenv').config({path: __dirname + '/.env'});
 const atac = require('NodeAtacAPI');
 
 const atacKey = process.env.ATAC_API_KEY;
-const parallelQueries = process.env.PARALLEL_QUERIES;
+const parallelQueries = parseInt(process.env.PARALLEL_QUERIES);
 
 const lines = [
     {
