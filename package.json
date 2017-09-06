@@ -14,7 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "NodeAtacAPI": "github:LBreda/NodeAtacAPI",
-    "dotenv": "^4.0.0"
+    "dotenv": "^4.0.0",
+    "lodash": "^4.17.4"
   },
   "bugs": {
     "url": "https://github.com/LBreda/atac-lines/issues"
