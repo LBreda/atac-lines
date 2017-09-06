@@ -13,9 +13,8 @@ const atacKey = process.env.ATAC_API_KEY;
 const parallelQueries = parseInt(process.env.PARALLEL_QUERIES);
 
 const lines = [
-  /*
     {
-        el: 'Autobus ATAC',
+        label: 'Autobus ATAC',
         lines: [
             //Day
             'H',
@@ -167,8 +166,6 @@ const lines = [
             '671',
             '673',
             '700',
-            '701L',
-            '702',
             '703',
             '707',
             '708',
@@ -353,7 +350,6 @@ const lines = [
             '663',
             '665',
             '701',
-            '702L',
             '702',
             '703L',
             '710',
@@ -388,7 +384,6 @@ const lines = [
             'C19',
         ],
     },
-  */
     {
         label: 'Tram',
         lines: [
@@ -414,10 +409,10 @@ const lines = [
  * @param {string} line Bus line
  */
 let getRoutes = (line) => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         atac.getRoutes(atacKey, line, (error, response) => {
             if (error) {
-                //console.log(error);
+                reject(error + ' - line ' + line)
             }
             else {
                 let ids = response.risposta.percorsi.map(percorso => {
@@ -434,10 +429,10 @@ let getRoutes = (line) => {
  * @param {string} route
  */
 let getVehicles = (route) => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         atac.getRoute(atacKey, route, (error, response) => {
             if (error) {
-                console.log(error);
+                reject(error)
             }
             else {
                 let buses = response.risposta.fermate.filter(fermata => {
@@ -473,13 +468,13 @@ const fillAsync = async (list, getFunction, parallel) => {
 const main = async () => {
   for (let group of lines) {
     const _groupLines = group.lines
-    const _groupRoutes = await fillAsync(_groupLines, getRoutes, parallelQueries)
-    const _groupBuses = await fillAsync(_groupRoutes, getVehicles, parallelQueries)
 
+   const _groupRoutes = await fillAsync(_groupLines, getRoutes, parallelQueries)
+   const _groupBuses = await fillAsync(_groupRoutes, getVehicles, parallelQueries)
+   
     group.buses = _groupBuses
   }
 
-  debugger
   console.log(lines)
 }
 
