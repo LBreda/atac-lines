@@ -447,33 +447,33 @@ let getVehicles = (route) => {
 };
 
 const fillAsync = async (list, getFunction, parallel) => {
-  let _list = list.slice()
-  let _data = []
+    let _list = list.slice()
+    let _data = []
 
-  while (_list.length > 0) {
-    const _subset = _take(_list, parallel)
+    while (_list.length > 0) {
+        const _subset = _take(_list, parallel)
 
-    const data = await Promise.all(_subset.map(getFunction))
+        const data = await Promise.all(_subset.map(getFunction))
 
-    _data = _concat(_data, data.reduce((out, el) => out.concat(el), []))
-    _list = _drop(_list, parallel)
-  }
+        _data = _concat(_data, data.reduce((out, el) => out.concat(el), []))
+        _list = _drop(_list, parallel)
+    }
 
-  return _data
+    return _data
 }
 
 /**
  * Main program
  */
 const main = async () => {
-  for (let group of lines) {
-    const _groupLines = group.lines
+    for (let group of lines) {
+        const _groupLines = group.lines
 
-   const _groupRoutes = await fillAsync(_groupLines, getRoutes, parallelQueries)
-   const _groupBuses = await fillAsync(_groupRoutes, getVehicles, parallelQueries)
+        const _groupRoutes = await fillAsync(_groupLines, getRoutes, parallelQueries)
+        const _groupBuses = await fillAsync(_groupRoutes, getVehicles, parallelQueries)
    
-    group.buses = _groupBuses
-  }
+        group.buses = _groupBuses
+    }
 
   console.log(lines)
 }
