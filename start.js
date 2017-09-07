@@ -409,10 +409,11 @@ const lines = [
  * @param {string} line Bus line
  */
 let getRoutes = (line) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         atac.getRoutes(atacKey, line, (error, response) => {
             if (error) {
-                reject(error + ' - line ' + line)
+                console.log(error + ' - line ' + line)
+                resolve([])
             }
             else {
                 let ids = response.risposta.percorsi.map(percorso => {
@@ -429,10 +430,11 @@ let getRoutes = (line) => {
  * @param {string} route
  */
 let getVehicles = (route) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         atac.getRoute(atacKey, route, (error, response) => {
             if (error) {
-                reject(error)
+                console.log(error)
+                resolve([])
             }
             else {
                 let buses = response.risposta.fermate.filter(fermata => {
