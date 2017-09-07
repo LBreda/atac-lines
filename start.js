@@ -1,4 +1,4 @@
-#!/usr/bin/node
+#!/usr/bin/nodejs
 'use strict';
 
 const _drop = require('lodash/drop');
@@ -13,9 +13,8 @@ const atacKey = process.env.ATAC_API_KEY;
 const parallelQueries = parseInt(process.env.PARALLEL_QUERIES);
 
 const lines = [
-  /*
     {
-        el: 'Autobus ATAC',
+        label: 'Autobus ATAC',
         lines: [
             //Day
             'H',
@@ -167,8 +166,6 @@ const lines = [
             '671',
             '673',
             '700',
-            '701L',
-            '702',
             '703',
             '707',
             '708',
@@ -353,7 +350,6 @@ const lines = [
             '663',
             '665',
             '701',
-            '702L',
             '702',
             '703L',
             '710',
@@ -388,7 +384,6 @@ const lines = [
             'C19',
         ],
     },
-  */
     {
         label: 'Tram',
         lines: [
@@ -414,10 +409,10 @@ const lines = [
  * @param {string} line Bus line
  */
 let getRoutes = (line) => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         atac.getRoutes(atacKey, line, (error, response) => {
             if (error) {
-                //console.log(error);
+                reject(error + ' - line ' + line)
             }
             else {
                 let ids = response.risposta.percorsi.map(percorso => {
@@ -434,10 +429,10 @@ let getRoutes = (line) => {
  * @param {string} route
  */
 let getVehicles = (route) => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
         atac.getRoute(atacKey, route, (error, response) => {
             if (error) {
-                console.log(error);
+                reject(error)
             }
             else {
                 let buses = response.risposta.fermate.filter(fermata => {
@@ -452,35 +447,37 @@ let getVehicles = (route) => {
 };
 
 const fillAsync = async (list, getFunction, parallel) => {
-  let _list = list.slice()
-  let _data = []
+    let _list = list.slice()
+    let _data = []
 
-  while (_list.length > 0) {
-    const _subset = _take(_list, parallel)
+    while (_list.length > 0) {
+        const _subset = _take(_list, parallel)
 
-    const data = await Promise.all(_subset.map(getFunction))
+        const data = await Promise.all(_subset.map(getFunction))
 
-    _data = _concat(_data, data.reduce((out, el) => out.concat(el), []))
-    _list = _drop(_list, parallel)
-  }
+        _data = _concat(_data, data.reduce((out, el) => out.concat(el), []))
+        _list = _drop(_list, parallel)
+    }
 
-  return _data
+    return _data
 }
 
 /**
  * Main program
  */
 const main = async () => {
-  for (let group of lines) {
-    const _groupLines = group.lines
-    const _groupRoutes = await fillAsync(_groupLines, getRoutes, parallelQueries)
-    const _groupBuses = await fillAsync(_groupRoutes, getVehicles, parallelQueries)
+    for (let group of lines) {
+        const _groupLines = group.lines
 
-    group.buses = _groupBuses
-  }
+        const _groupRoutes = await fillAsync(_groupLines, getRoutes, parallelQueries)
+        const _groupBuses = await fillAsync(_groupRoutes, getVehicles, parallelQueries)
+   
+        group.buses = _groupBuses
+    }
 
-  debugger
-  console.log(lines)
+    lines.forEach(group => {
+        console.log(group.label + ': ' + group.buses.length + ' buses')
+    })
 }
 
 
