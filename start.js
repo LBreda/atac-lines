@@ -1,4 +1,4 @@
-#!/usr/bin/nodejs
+#!/usr/bin/node
 'use strict';
 
 const _drop = require('lodash/drop');
