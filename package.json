@@ -13,9 +13,9 @@
   "author": "Lorenzo Breda <lorenzo@lbreda.com>",
   "license": "ISC",
   "dependencies": {
-    "NodeAtacAPI": "github:LBreda/NodeAtacAPI",
+    "NodeAtacAPI": "LBreda/NodeAtacAPI#semver:^0.1.x",
     "dotenv": "^4.0.0",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.11"
   },
   "bugs": {
     "url": "https://github.com/LBreda/atac-lines/issues"
